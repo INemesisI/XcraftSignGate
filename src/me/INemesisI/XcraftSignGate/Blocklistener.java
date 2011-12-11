@@ -66,15 +66,20 @@ public class Blocklistener extends BlockListener {
     @Override
 	public void onSignChange(SignChangeEvent event) {
     	if (event.getLine(1).toLowerCase().contains("[gate]")) {
-    		if (!event.getPlayer().hasPermission("XcraftSign.gate.create")) {
+    		if (!event.getPlayer().hasPermission("XcraftSignGate.create")) {
     			event.getPlayer().sendMessage(plugin.getName() + "Du hast keine Rechte, Gates zu erstellen!");
         		event.setCancelled(true);
         		return;
         	}
     		event.setLine(1, plugin.capitalize(event.getLine(1)));
     		plugin.gateHandler.add(event.getBlock());
-    		event.getPlayer().sendMessage(ChatColor.BLUE +plugin.getName() + "Das Gate wurde erstellt");
-    	}
+    		if (plugin.gateHandler.getGate(event.getBlock()) != null)
+    			event.getPlayer().sendMessage(plugin.getName() + "Das Gate wurde erstellt");
+    		else {
+    			event.getPlayer().sendMessage(plugin.getName() + ChatColor.RED + "Das Gate konnte nicht erstellt werden!");
+    			event.setCancelled(true);
+    		}
+    	}	
 		else return;
     }
 }

@@ -24,7 +24,7 @@ public class Playerlistener extends PlayerListener{
         		if (block.getState() instanceof Sign) {
         			Sign sign = (Sign) block.getState();
         			String[] lines = sign.getLines();
-        			if ((lines[1].contains("[Gate]")) && event.getPlayer().hasPermission("XcraftSign.gate.use")) {
+        			if ((lines[1].contains("[Gate]")) && event.getPlayer().hasPermission("XcraftSignGate.use")) {
             			Gate gate = plugin.gateHandler.getGate(block);
             			if (gate == null) {
             				event.getPlayer().sendMessage(plugin.getName() + "Dieses Gate wurde nicht geladen...");	

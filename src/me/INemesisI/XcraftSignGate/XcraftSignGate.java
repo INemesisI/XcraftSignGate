@@ -35,7 +35,7 @@ public class XcraftSignGate extends JavaPlugin {
     pm.registerEvent(Event.Type.PLAYER_INTERACT, playerlistener, Event.Priority.Normal, this);
     
     gateHandler.load();
-    log.info("[" + getDescription().getName()+"] v"+getDescription().getVersion()+" by INemesisI loaded!");
+    log.info("[" + getDescription().getName()+"] v"+getDescription().getVersion()+" by INemesisI enabled!");
     }
 
     public String getName() {

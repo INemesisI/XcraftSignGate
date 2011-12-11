@@ -2,7 +2,7 @@ name: XcraftSignGate
 
 main: me.INemesisI.XcraftSignGate.XcraftSignGate
 
-version: 1.0
+version: 1.1
         
 permissions:
     XcraftSignGate.*:
@@ -14,5 +14,7 @@ permissions:
         
     XcraftSignGate.use:
         description: Acces to use [Lift Up/Down]
+        default: true
     XcraftSignGate.create:
-        description: Acces to create [Lift Up/Down] 
+        description: Acces to create [Lift Up/Down]
+        default: false
