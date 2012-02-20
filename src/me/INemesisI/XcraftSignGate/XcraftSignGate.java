@@ -3,15 +3,13 @@ package me.INemesisI.XcraftSignGate;
 import java.util.logging.Logger;
 
 import org.bukkit.ChatColor;
-import org.bukkit.event.Event;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class XcraftSignGate extends JavaPlugin {
 	 
     //ClassListeners
-	private final Blocklistener blocklistener = new Blocklistener(this);
-	private final Playerlistener playerlistener = new Playerlistener(this);
+	private final EventListener eventlistener = new EventListener(this);
     //ClassListeners
 	public GateHandler gateHandler = new GateHandler(this);
        
@@ -27,12 +25,7 @@ public class XcraftSignGate extends JavaPlugin {
 	public void onEnable() {
                
     PluginManager pm = this.getServer().getPluginManager();
-
-    pm.registerEvent(Event.Type.SIGN_CHANGE, blocklistener, Event.Priority.Normal, this);
-    pm.registerEvent(Event.Type.BLOCK_PLACE, blocklistener, Event.Priority.Normal, this);
-    pm.registerEvent(Event.Type.REDSTONE_CHANGE, blocklistener, Event.Priority.Normal, this);
-    pm.registerEvent(Event.Type.BLOCK_BREAK, blocklistener, Event.Priority.Normal, this);
-    pm.registerEvent(Event.Type.PLAYER_INTERACT, playerlistener, Event.Priority.Normal, this);
+	pm.registerEvents(eventlistener, this);
     
     gateHandler.load();
     log.info("[" + getDescription().getName()+"] v"+getDescription().getVersion()+" by INemesisI enabled!");
