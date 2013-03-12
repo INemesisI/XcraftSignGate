@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -39,17 +40,20 @@ public class GateHandler {
 			temp = config.getStringList(id + ".Signs");
 			for (String s : temp) {
 				Block b = StringToBlock(s);
-				if (b != null) signs.add(b);
+				if (b != null)
+					signs.add(b);
 			}
 			temp = config.getStringList(id + ".Fences");
 			for (String s : temp) {
 				Block b = StringToBlock(s);
-				if (b != null) fences.add(b);
+				if (b != null)
+					fences.add(b);
 			}
 			closed = config.getBoolean(id + ".Closed");
 			int ID = Integer.parseInt(id);
 			gatelist.add(new Gate(ID, signs, fences, closed));
-			if (ID > nextid) nextid = ID;
+			if (ID > nextid)
+				nextid = ID;
 		}
 		plugin.log.info("[" + plugin.getDescription().getName() + "] " + gatelist.size() + " Gate(s) loaded!");
 	}
@@ -76,45 +80,47 @@ public class GateHandler {
 		config.set(gate.getId() + ".Fences", getStringList(gate.getFences()));
 	}
 
-	public void updateCFG(Gate gate) {
-		config.set(gate.getId() + ".closed", gate.isClosed());
-	}
-
-	public void remove(Block block) {
+	public boolean remove(Block block) {
 		for (Gate gate : gatelist) {
 			if (gate.getSigns().contains(block)) {
 				gate.getSigns().remove(block);
 				if (!gate.getSigns().isEmpty()) {
 					save(gate);
 				} else {
-					if (gate.isClosed()) gate.toggle();
+					if (gate.isClosed())
+						gate.toggle();
 					gatelist.remove(gate);
 					config.set(gate.getId() + "", null);
 				}
-				break;
+				return true;
 			}
 		}
+		return false;
 	}
 
-	public void add(Block block) {
+	public boolean add(Block block) {
 		ArrayList<Block> fences = getFencesInRegion(block, 5);
 		Block fence = getNearestBlock(block, fences);
-		if (fence == null) return;
+		if (fence == null)
+			return false;
 		BlockFace face = getBlockDirection(fence);
-		if (face == null) return;
+		if (face == null)
+			return false;
 		fences = getGateBlocks(block, fence, face);
 		for (Gate gate : gatelist) {
-			if (listequals(gate.getFences(), fences)) {
-				gate.getSigns().add(block);
-				return;
+			for (int i = 0; i < fences.size(); i++) {
+				if (gate.getFences().contains(fences.get(i))) {
+					gate.getSigns().add(block);
+					return true;
+				}
 			}
 		}
 		ArrayList<Block> signs = new ArrayList<Block>();
 		signs.add(block);
-		Gate gate = new Gate(nextid, signs, fences, false);
-		nextid++;
+		Gate gate = new Gate(nextid++, signs, fences, false);
 		gatelist.add(gate);
 		save(gate);
+		return true;
 	}
 
 	public ArrayList<Block> getGateBlocks(Block sign, Block block, BlockFace face) {
@@ -125,7 +131,8 @@ public class GateHandler {
 		// for returned direction
 		for (int i = 1; i <= 15; i++) {
 			Block fence = getFenceInVertDirection(block.getRelative(face, 1), 1);
-			if (fence == null) break;
+			if (fence == null)
+				break;
 			blocks.add(fence);
 			block = fence;
 		}
@@ -133,7 +140,8 @@ public class GateHandler {
 		// for opposite direction
 		for (int i = 1; i <= 15; i++) {
 			Block fence = getFenceInVertDirection(block.getRelative(oppface, 1), 1);
-			if (fence == null) break;
+			if (fence == null)
+				break;
 			blocks.add(fence);
 			block = fence;
 		}
@@ -141,18 +149,15 @@ public class GateHandler {
 	}
 
 	public ArrayList<Block> getFencesInRegion(Block sign, int r) {
-
-		int x = sign.getX();
-		int y = sign.getY();
-		int z = sign.getZ();
 		ArrayList<Block> list = new ArrayList<Block>();
-		for (int b = y + r; b >= y - r; b--) {
-			for (int c = z - r; c <= z + r; c++) {
-				for (int a = x - r; a <= x + r; a++) {
-					Block block = sign.getWorld().getBlockAt(a, b, c);
+		for (int x = sign.getX() - r; x <= sign.getX() + r; x++) {
+			for (int z = sign.getZ() - r; z <= sign.getZ() + r; z++) {
+				for (int y = sign.getY() - r; y <= sign.getY() + r; y--) {
+					Block block = sign.getWorld().getBlockAt(x, y, z);
 					if (block.getType().equals(Material.FENCE)) {
 						Material type = block.getRelative(BlockFace.DOWN).getType();
-						if (type.equals(Material.AIR) || type.equals(Material.WATER) || type.equals(Material.LAVA) || type.equals(Material.STATIONARY_LAVA) || type.equals(Material.STATIONARY_WATER)) {
+						if (type.equals(Material.AIR) || type.equals(Material.WATER) || type.equals(Material.LAVA)
+								|| type.equals(Material.STATIONARY_LAVA) || type.equals(Material.STATIONARY_WATER)) {
 							list.add(block);
 						}
 					}
@@ -164,54 +169,47 @@ public class GateHandler {
 
 	public BlockFace getBlockDirection(Block fence) {
 		ArrayList<Block> blocks = getFencesInRegion(fence, 1);
-		for (int i = 0; i < blocks.size(); i++) {
-			if (blocks.get(i).getY() != fence.getY()) {
-				Block block = blocks.get(i);
-				blocks.set(i, fence.getWorld().getBlockAt(block.getX(), fence.getY(), block.getZ()));
+		for (Block block : blocks) {
+			if (block.getY() != fence.getY()) {
+				block = block.getRelative(block.getX(), fence.getY(), block.getZ());
 			}
-			BlockFace face = fence.getFace(blocks.get(i));
-			if (!face.equals(BlockFace.SELF)) return face;
+			BlockFace face = fence.getFace(block);
+			if (face != BlockFace.SELF) {
+				return face;
+			}
 		}
 		return null;
 	}
 
-	public Block getFenceInVertDirection(Block block, int vert) {
-		for (int i = vert; i >= 0; i--) {
-			Block checkdown = block.getRelative(BlockFace.DOWN, i);
-			if (checkdown.getType().equals(Material.FENCE)) return checkdown;
-		}
-		for (int i = 1; i <= vert; i++) {
-
-			Block checkup = block.getRelative(BlockFace.UP, i);
-			if (checkup.getType().equals(Material.FENCE)) return checkup;
+	public Block getFenceInVertDirection(Block block, int dist) {
+		for (int i = 1; i <= dist; i++) {
+			Block check = block.getRelative(BlockFace.DOWN, i);
+			if (check.getType().equals(Material.FENCE))
+				return check;
+			check = block.getRelative(BlockFace.UP, i);
+			if (check.getType().equals(Material.FENCE))
+				return check;
 		}
 		return null;
 
 	}
 
 	public Block getNearestBlock(Block sign, ArrayList<Block> blocks) {
-		if (blocks.size() == 0) return null;
-		if (blocks.size() == 1) return blocks.get(0);
-		Block block = blocks.get(0);
-		for (int i = 1; i < blocks.size(); i++) {
-			Block check = blocks.get(i);
-			int blockx = Math.abs(sign.getX() - block.getX());
-			int blocky = Math.abs(sign.getY() - block.getY());
-			int blockz = Math.abs(sign.getZ() - block.getZ());
-			if (blockx == 0) blockx = 1;
-			if (blocky == 0) blocky = 1;
-			if (blockz == 0) blockz = 1;
-			int region1 = blockx * blocky * blockz;
-			int checkx = Math.abs(sign.getX() - check.getX());
-			int checky = Math.abs(sign.getY() - check.getY());
-			int checkz = Math.abs(sign.getZ() - check.getZ());
-			if (checkx == 0) checkx = 1;
-			if (checky == 0) checky = 1;
-			if (checkz == 0) checkz = 1;
-			int region2 = checkx * checky * checkz;
-			if (region1 > region2) block = check;
+		if (blocks.size() == 0)
+			return null;
+		if (blocks.size() == 1)
+			return blocks.get(0);
+		int mindist = 99999999;
+		Block mindistblock = null;
+		for (Block block : blocks) {
+			int dist = Math.abs(sign.getX() - block.getX()) * Math.abs(sign.getY() - block.getY())
+					* Math.abs(sign.getZ() + block.getZ());
+			if (dist < mindist) {
+				dist = mindist;
+				mindistblock = block;
+			}
 		}
-		return block;
+		return mindistblock;
 	}
 
 	public Block StringToBlock(String name) {
@@ -223,7 +221,8 @@ public class GateHandler {
 		int z = Integer.parseInt(split[2]);
 		String w = split[3];
 		World world = plugin.getServer().getWorld(w);
-		if (world != null) return world.getBlockAt(x, y, z);
+		if (world != null)
+			return world.getBlockAt(x, y, z);
 		else
 			return null;
 	}
@@ -240,23 +239,18 @@ public class GateHandler {
 		return slist;
 	}
 
-	public boolean listequals(ArrayList<Block> list1, ArrayList<Block> list2) {
-		for (Block block : list1) {
-			list2.remove(block);
-		}
-		return list2.isEmpty();
-	}
-
 	public boolean isBlockFromGate(Block block) {
 		for (Gate gate : gatelist) {
-			if (gate.getFences().contains(block) || gate.getAntigrief().contains(block)) return true;
+			if (gate.getFences().contains(block) || gate.getAntigrief().contains(block))
+				return true;
 		}
 		return false;
 	}
 
 	public Gate getGate(Block block) {
 		for (Gate gate : gatelist) {
-			if (gate.getSigns().contains(block)) return gate;
+			if (gate.getSigns().contains(block))
+				return gate;
 		}
 		return null;
 	}

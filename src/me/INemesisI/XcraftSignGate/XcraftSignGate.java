@@ -31,7 +31,7 @@ public class XcraftSignGate extends JavaPlugin {
     log.info("[" + getDescription().getName()+"] v"+getDescription().getVersion()+" by INemesisI enabled!");
     }
 
-    public String getName() {
+    public String getCName() {
       	return ChatColor.DARK_GRAY + "[" + this.getDescription().getName() + "] " + getChatColor();
    	}
     
