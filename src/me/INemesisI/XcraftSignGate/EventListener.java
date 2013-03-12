@@ -25,8 +25,9 @@ public class EventListener implements Listener {
 		// prevent placing blocks when clicking a gate-sign!
 		Block block = event.getBlockAgainst();
 		if (block.getState() instanceof Sign) {
-			if (plugin.gateHandler.getGate(block) != null)
+			if (plugin.gateHandler.getGate(block) != null) {
 				event.setCancelled(true);
+			}
 		}
 
 	}
@@ -37,16 +38,17 @@ public class EventListener implements Listener {
 		if (block.getState() instanceof Sign) {
 			Sign sign = (Sign) block.getState();
 			String[] lines = sign.getLines();
-			if (lines[1].toLowerCase().equals("[Gate]") && plugin.gateHandler.getGate(block) != null) {
+			if (lines[1].toLowerCase().equals("[Gate]") && (plugin.gateHandler.getGate(block) != null)) {
 				plugin.gateHandler.remove(block);
 				event.getPlayer().sendMessage(plugin.getCName() + "Das Gate wurde gelöscht!");
 			}
 		}
-		if (block.getType().equals(Material.FENCE))
+		if (block.getType().equals(Material.FENCE)) {
 			if (plugin.gateHandler.isBlockFromGate(block)) {
 				event.setCancelled(true);
 				event.getPlayer().sendMessage(plugin.getCName() + "Du hast keine Rechte, Gates zu zerstören!");
 			}
+		}
 	}
 
 	@EventHandler
@@ -75,15 +77,16 @@ public class EventListener implements Listener {
 			}
 			event.setLine(1, event.getLine(1).replace("g", "G"));
 			plugin.gateHandler.add(event.getBlock());
-			if (plugin.gateHandler.getGate(event.getBlock()) != null)
+			if (plugin.gateHandler.getGate(event.getBlock()) != null) {
 				event.getPlayer().sendMessage(plugin.getCName() + "Das Gate wurde erstellt");
-			else {
+			} else {
 				event.getPlayer().sendMessage(
 						plugin.getCName() + ChatColor.RED + "Das Gate konnte nicht erstellt werden!");
 				event.setCancelled(true);
 			}
-		} else
+		} else {
 			return;
+		}
 	}
 
 	@EventHandler

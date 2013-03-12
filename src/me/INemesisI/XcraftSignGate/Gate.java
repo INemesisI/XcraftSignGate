@@ -74,10 +74,11 @@ public class Gate {
 			}
 
 		}
-		if (isClosed()) {
+		if (this.isClosed()) {
 			antigrief.clear();
-			setClosed(false);
-		} else
-			setClosed(true);
+			this.setClosed(false);
+		} else {
+			this.setClosed(true);
+		}
 	}
 }
