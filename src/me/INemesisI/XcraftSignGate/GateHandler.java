@@ -16,7 +16,7 @@ public class GateHandler {
 	private FileConfiguration config;
 	private File file;
 	private int nextid = 1;
-	private ArrayList<Gate> gatelist = new ArrayList<Gate>();
+	private final ArrayList<Gate> gatelist = new ArrayList<Gate>();
 	XcraftSignGate plugin;
 
 	public GateHandler(XcraftSignGate instance) {
@@ -106,10 +106,13 @@ public class GateHandler {
 		ArrayList<Block> fences = this.getFencesInRegion(block, 5);
 		Block fence = this.getNearestBlock(block, fences);
 		if (fence == null) {
+			System.out.println("fence == null!");
 			return false;
 		}
+		fence.setType(Material.BEDROCK);
 		BlockFace face = this.getBlockDirection(fence);
 		if (face == null) {
+			System.out.println("face == null!");
 			return false;
 		}
 		fences = this.getGateBlocks(block, fence, face);
@@ -136,7 +139,7 @@ public class GateHandler {
 		blocks.add(block);
 		// for returned direction
 		for (int i = 1; i <= 15; i++) {
-			Block fence = this.getFenceInVertDirection(block.getRelative(face, 1), 1);
+			Block fence = this.getFenceInVertDirection(block.getRelative(face, i), 1);
 			if (fence == null) {
 				break;
 			}
@@ -146,7 +149,7 @@ public class GateHandler {
 		block = save;
 		// for opposite direction
 		for (int i = 1; i <= 15; i++) {
-			Block fence = this.getFenceInVertDirection(block.getRelative(oppface, 1), 1);
+			Block fence = this.getFenceInVertDirection(block.getRelative(oppface, i), 1);
 			if (fence == null) {
 				break;
 			}
@@ -160,7 +163,7 @@ public class GateHandler {
 		ArrayList<Block> list = new ArrayList<Block>();
 		for (int x = sign.getX() - r; x <= (sign.getX() + r); x++) {
 			for (int z = sign.getZ() - r; z <= (sign.getZ() + r); z++) {
-				for (int y = sign.getY() - r; y <= (sign.getY() + r); y--) {
+				for (int y = sign.getY() - r; y <= (sign.getY() + r); y++) {
 					Block block = sign.getWorld().getBlockAt(x, y, z);
 					if (block.getType().equals(Material.FENCE)) {
 						Material type = block.getRelative(BlockFace.DOWN).getType();
@@ -179,9 +182,10 @@ public class GateHandler {
 		ArrayList<Block> blocks = this.getFencesInRegion(fence, 1);
 		for (Block block : blocks) {
 			if (block.getY() != fence.getY()) {
-				block = block.getRelative(block.getX(), fence.getY(), block.getZ());
+				block = block.getWorld().getBlockAt(block.getX(), fence.getY(), block.getZ());
 			}
 			BlockFace face = fence.getFace(block);
+			System.out.println(face);
 			if (face != BlockFace.SELF) {
 				return face;
 			}
@@ -211,13 +215,16 @@ public class GateHandler {
 		if (blocks.size() == 1) {
 			return blocks.get(0);
 		}
-		int mindist = 99999999;
+		int mindist = -1;
 		Block mindistblock = null;
 		for (Block block : blocks) {
-			int dist = Math.abs(sign.getX() - block.getX()) * Math.abs(sign.getY() - block.getY())
-					* Math.abs(sign.getZ() + block.getZ());
-			if (dist < mindist) {
-				dist = mindist;
+			int dist = (int) Math.sqrt(Math.pow(Math.abs(sign.getX()) - Math.abs(block.getX()), 2)
+					+ Math.pow(Math.abs(sign.getY()) - Math.abs(block.getY()), 2)
+					+ Math.pow(Math.abs(sign.getZ()) - Math.abs(block.getZ()), 2));
+			System.out.println("mindist: " + mindist + ", dist: " + dist);
+			System.out.println(block.toString());
+			if (mindist == -1 || dist < mindist) {
+				mindist = dist;
 				mindistblock = block;
 			}
 		}

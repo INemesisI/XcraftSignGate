@@ -69,7 +69,7 @@ public class EventListener implements Listener {
 
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
-		if (event.getLine(1).toLowerCase().equals("[Gate]")) {
+		if (event.getLine(1).toLowerCase().equals("[gate]")) {
 			if (!event.getPlayer().hasPermission("XcraftSignGate.create")) {
 				event.getPlayer().sendMessage(plugin.getCName() + "Du hast keine Rechte, Gates zu erstellen!");
 				event.setCancelled(true);
